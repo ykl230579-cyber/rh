@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Folha Salarial — GestãoRH</title>
+  <meta name="description" content="Processamento salarial Angola 2026: INSS 3% trabalhador / 8% entidade, IRT tabela oficial OGE 2026 com isenção até 150.000 Kz, matriz de incidência de rubricas.">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/folha.css">
+</head>
+<body>
+  <div class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Folha <span>Salarial</span></h1>
+        <p class="page-subtitle">Processamento conforme Angola 2026 — INSS (3%T / 8%E) · IRT 11 escalões OGE 2026 · Limites isentos 30.000 Kz subsídios.</p>
+      </div>
+      <div class="month-selector">
+        <label class="form-label" style="margin:0">Mês de referência:</label>
+        <select id="mes-ref" class="form-control" style="width:auto"></select>
+      </div>
+    </div>
+
+    <!-- Painel de Conformidade -->
+    <div class="card" style="margin-bottom:20px;padding:14px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px">
+        <strong style="font-size:.85rem">Conformidade legal:</strong>
+        <span id="kpi-alertas">✓ Tudo conforme</span>
+      </div>
+      <div style="font-size:.78rem;color:var(--text-2)">
+        Fontes: Lei 14/25 (OGE 2026 IRT) · Decreto 227/18 (INSS) · Lei 12/23 (Trabalho)
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fill,minmax(175px,1fr));margin-bottom:24px">
+      <div class="kpi-card" style="--kpi-color:var(--primary)">
+        <span class="kpi-icon">👥</span>
+        <div class="kpi-value" id="kpi-func-folha">0</div>
+        <div class="kpi-label">Funcionários</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:var(--info)">
+        <span class="kpi-icon">📊</span>
+        <div class="kpi-value" id="kpi-bruto" style="font-size:1rem">—</div>
+        <div class="kpi-label">Total Bruto</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#4361ee">
+        <span class="kpi-icon">🧮</span>
+        <div class="kpi-value" id="kpi-base-inss" style="font-size:1rem">—</div>
+        <div class="kpi-label">Base INSS</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#7209b7">
+        <span class="kpi-icon">📐</span>
+        <div class="kpi-value" id="kpi-base-irt" style="font-size:1rem">—</div>
+        <div class="kpi-label">Matéria IRT</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:var(--danger)">
+        <span class="kpi-icon">📉</span>
+        <div class="kpi-value" id="kpi-inss" style="font-size:1rem">—</div>
+        <div class="kpi-label">INSS Trab (3%)</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#e63946">
+        <span class="kpi-icon">🏢</span>
+        <div class="kpi-value" id="kpi-inss-emp" style="font-size:1rem">—</div>
+        <div class="kpi-label">INSS Ent (8%)</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:var(--warning)">
+        <span class="kpi-icon">🏦</span>
+        <div class="kpi-value" id="kpi-irt" style="font-size:1rem">—</div>
+        <div class="kpi-label">Total IRT</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:var(--success)">
+        <span class="kpi-icon">💰</span>
+        <div class="kpi-value" id="kpi-liq" style="font-size:1rem">—</div>
+        <div class="kpi-label">Total Líquido</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#f77f00">
+        <span class="kpi-icon">📈</span>
+        <div class="kpi-value" id="kpi-custo" style="font-size:1rem">—</div>
+        <div class="kpi-label">Custo Total Emp.</div>
+      </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="table-container" style="border:none;overflow-x:auto">
+        <table class="table" style="min-width:1280px">
+          <thead>
+            <tr>
+              <th style="min-width:190px">Funcionário</th>
+              <th>Salário Base</th>
+              <th>Subsídios / Abonos</th>
+              <th>Bruto</th>
+              <th>Base INSS</th>
+              <th>Matéria IRT</th>
+              <th>INSS (3%)</th>
+              <th>IRT</th>
+              <th>Outros Desc.</th>
+              <th>Líquido</th>
+              <th>INSS Ent. (8%)</th>
+              <th style="text-align:right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="folha-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal editar detalhado -->
+  <div class="modal" id="folha-modal">
+    <div class="modal-box" style="max-width:640px">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="modal-f-nome">Editar Folha</div>
+          <div style="font-size:.78rem;color:var(--text-2);margin-top:4px" id="modal-f-nif">NIF: — · NISS: —</div>
+          <div style="font-size:.80rem;margin-top:6px" id="modal-f-conformidade"></div>
+        </div>
+        <button class="modal-close" onclick="Folha.closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="form-group">
+          <label class="form-label">Salário Base</label>
+          <p id="form-f-base" style="font-size:1.05rem;font-weight:700;color:var(--success);padding:6px 0;margin:0"></p>
+        </div>
+
+        <!-- Rubricas separadas para matriz de incidência -->
+        <div style="font-size:.78rem;color:var(--text-2);margin-bottom:8px" id="info-limites"></div>
+        <div class="form-grid" style="grid-template-columns:1fr 1fr">
+          <div class="form-group">
+            <label class="form-label">Sub. Alimentação (Kz)</label>
+            <input type="number" id="form-f-subAlim" class="form-control" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sub. Transporte (Kz)</label>
+            <input type="number" id="form-f-subTrans" class="form-control" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Outros Abonos (Kz)</label>
+            <input type="number" id="form-f-outrosAb" class="form-control" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Outros Descontos (Kz)</label>
+            <input type="number" id="form-f-outrosDesc" class="form-control" min="0" step="0.01" placeholder="0.00">
+          </div>
+        </div>
+
+        <!-- Complementos anuais informativos -->
+        <div style="background:linear-gradient(135deg,#f8f9fa,#e9ecef);border:1px solid #dee2e6;border-radius:var(--r-md);padding:10px 14px;margin:8px 0 14px">
+          <div style="font-size:.76rem;color:var(--text-2);margin-bottom:2px">💼 Complementos anuais (Lei Geral do Trabalho art. 238.º — 50% SB)</div>
+          <div style="font-size:.82rem;font-weight:600" id="info-complementos"></div>
+        </div>
+
+        <!-- Preview detalhado -->
+        <div style="background:var(--bg-3);border-radius:var(--r-md);padding:14px 16px">
+          <div style="font-weight:700;margin-bottom:10px;font-size:.92rem">📊 Pré-visualização do Cálculo</div>
+          <div class="salary-breakdown">
+            <div class="line"><span>+ Remuneração Bruta</span><span id="prev-subtotal" style="font-weight:600">—</span></div>
+            <div class="line subtotal"><span>⊜ Base Contributiva INSS</span><span id="prev-base-inss" style="color:#4361ee;font-weight:600">—</span></div>
+            <div class="line deduct"><span>− INSS Trabalhador (3%)</span><span id="prev-inss">—</span></div>
+            <div class="line subtotal"><span>⊜ Matéria Colectável IRT</span><span id="prev-mc-irt" style="color:#7209b7;font-weight:600">—</span></div>
+            <div class="line deduct"><span>− IRT (tabela 2026)</span><span id="prev-irt">—</span></div>
+            <div class="line deduct"><span>− Outros Descontos</span><span id="prev-outros">—</span></div>
+            <div class="line total" style="margin-top:8px;padding-top:8px;border-top:1px dashed #ccc"><span>💰 Salário Líquido</span><span id="prev-liq" style="font-size:1.05rem">—</span></div>
+            <div style="height:1px;background:#e9ecef;margin:10px 0"></div>
+            <div class="line subtotal"><span>🏢 INSS Entidade (8%) — Custo patronal</span><span id="prev-inss-emp" style="color:#e63946;font-weight:600">—</span></div>
+            <div class="line total" style="margin-top:6px"><span>📈 Custo Total Empresa</span><span id="prev-custo" style="font-size:1rem;color:#f77f00;font-weight:700">—</span></div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="Folha.closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="Folha.save()">💾 Guardar Folha</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/storage.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/folha.js"></script>
+</body>
+</html>
