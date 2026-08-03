@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — GestãoRH</title>
+  <meta name="description" content="Painel de indicadores e métricas do sistema de RH.">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+  <div class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title"><span>Dashboard</span></h1>
+        <p class="page-subtitle">Visão geral dos indicadores de Recursos Humanos.</p>
+      </div>
+      <button class="btn btn-ghost" onclick="Dashboard.init()">🔄 Atualizar</button>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="dashboard-grid" id="kpi-grid"></div>
+
+    <!-- Charts Row 1 -->
+    <div class="chart-grid">
+      <div class="chart-box">
+        <div class="chart-title">👥 Funcionários por Departamento</div>
+        <div class="chart-canvas-wrap"><canvas id="chart-depts"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">📄 Status dos Contratos</div>
+        <div class="chart-canvas-wrap"><canvas id="chart-contratos"></canvas></div>
+        <div class="legend-list" id="legend-contratos"></div>
+      </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="chart-grid">
+      <div class="chart-box">
+        <div class="chart-title">📅 Admissões por Mês</div>
+        <div class="chart-canvas-wrap"><canvas id="chart-admissoes"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">⭐ Avaliação Média por Departamento</div>
+        <div class="chart-canvas-wrap"><canvas id="chart-avaliacoes"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Alertas -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">⚠️ Alertas de Contratos</span>
+      </div>
+      <div class="alert-list" id="alert-list"></div>
+    </div>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/storage.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>
