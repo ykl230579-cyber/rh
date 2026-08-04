@@ -1,0 +1,24 @@
+/* ═══════════════════════════════════════════════════════════
+   Férias — CSS
+═══════════════════════════════════════════════════════════ */
+
+.ferias-bar-wrap { width: 100px; }
+
+.ferias-bar {
+  height: 6px;
+  background: var(--bg-4);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.ferias-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width .5s ease;
+}
+
+.risco-none   { color: var(--success); }
+.risco-baixo  { color: var(--info); }
+.risco-medio  { color: var(--warning); }
+.risco-alto   { color: var(--danger); font-weight: 700; }

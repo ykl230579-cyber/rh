@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatórios — GestãoRH</title>
+  <meta name="description" content="Recibos de salário individuais, mapa consolidado IRT/INSS e mapa bancário para transferência em Angola 2026.">
+  <link rel="stylesheet" href="../css/global.css">
+  <style>
+    /* ─── Abas de relatórios ────────────────────────────────────────────── */
+    .report-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 22px;
+      border-bottom: 2px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .report-tab {
+      padding: 12px 22px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 10px 10px 0 0;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text-2);
+      font-size: .92rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all .2s;
+    }
+    .report-tab:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+    }
+    .report-tab.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 -2px 10px rgba(44,120,108,.15);
+    }
+    .tab-panel {
+      display: none;
+      animation: fadeIn .25s ease;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Controlos comuns ──────────────────────────────────────────────── */
+    .report-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .report-controls .form-label {
+      margin: 0;
+    }
+    .report-controls .form-control {
+      width: auto;
+      min-width: 180px;
+    }
+    .action-group {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ─── Recibo de Salário (componente impressão) ──────────────────────── */
+    .recibo-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 30px;
+      max-width: 880px;
+      margin: 0 auto 24px;
+    }
+    .recibo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 22px;
+      padding-bottom: 18px;
+      border-bottom: 2px solid var(--border);
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .recibo-empresa h2 {
+      margin: 0 0 4px;
+      font-size: 1.4rem;
+      color: var(--primary);
+    }
+    .recibo-empresa p {
+      margin: 2px 0;
+      font-size: .82rem;
+      color: var(--text-2);
+    }
+    .recibo-titulo {
+      background: var(--primary);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    .recibo-titulo small {
+      display: block;
+      font-weight: 500;
+      opacity: .9;
+      font-size: .75rem;
+      margin-top: 2px;
+    }
+    .recibo-section-title {
+      font-size: .85rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin: 18px 0 10px;
+      padding-bottom: 4px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 8px 18px;
+    }
+    .info-row {
+      display: flex;
+      font-size: .88rem;
+      padding: 4px 0;
+    }
+    .info-row .lbl {
+      color: var(--text-2);
+      min-width: 120px;
+      font-weight: 600;
+    }
+    .info-row .val {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .rubricas-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0;
+    }
+    .rubricas-table th {
+      background: var(--bg-hover);
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 700;
+      color: var(--text-2);
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .3px;
+      border-bottom: 1px solid var(--border);
+    }
+    .rubricas-table td {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .rubricas-table .num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .rubricas-table tr.total-row td {
+      font-weight: 700;
+      background: var(--bg-hover);
+      border-top: 2px solid var(--primary);
+      border-bottom: none;
+      padding: 11px 12px;
+    }
+    .rubricas-table tr.net-row td {
+      background: var(--primary);
+      color: #fff;
+      font-size: 1rem;
+      padding: 14px 12px;
+      border-radius: 0;
+    }
+    .rubricas-table .posit { color: var(--success); font-weight: 600; }
+    .rubricas-table .negat { color: var(--danger); font-weight: 600; }
+
+    .recibo-footer {
+      margin-top: 36px;
+      padding-top: 20px;
+      border-top: 1px dashed var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      font-size: .78rem;
+      color: var(--text-2);
+    }
+    .assinatura {
+      text-align: center;
+    }
+    .assinatura .linha {
+      border-top: 1px solid var(--text-2);
+      width: 220px;
+      margin: 40px auto 6px;
+    }
+    .assinatura strong {
+      color: var(--text);
+      display: block;
+    }
+    .legal-note {
+      grid-column: 1 / -1;
+      padding: 10px 14px;
+      background: var(--bg-muted);
+      border-left: 3px solid var(--primary);
+      border-radius: 0 6px 6px 0;
+      line-height: 1.6;
+    }
+
+    /* ─── Mapas ─────────────────────────────────────────────────────────── */
+    .mapa-header {
+      text-align: center;
+      padding: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .mapa-header h2 {
+      margin: 0 0 4px;
+      color: var(--primary);
+      font-size: 1.3rem;
+    }
+    .mapa-header p {
+      margin: 2px 0;
+      color: var(--text-2);
+      font-size: .85rem;
+    }
+    .mapa-kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 0 0 20px;
+    }
+    .mapa-kpi {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .mapa-kpi .lbl {
+      font-size: .74rem;
+      text-transform: uppercase;
+      color: var(--text-2);
+      letter-spacing: .4px;
+      font-weight: 600;
+    }
+    .mapa-kpi .val {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-top: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .mapa-kpi.primary .val { color: var(--primary); }
+    .mapa-kpi.danger  .val { color: var(--danger); }
+    .mapa-kpi.warning .val { color: var(--warning); }
+    .mapa-kpi.success .val { color: var(--success); }
+    .mapa-kpi.info    .val { color: #4361ee; }
+
+    .table-mapa td.num, .table-mapa th.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .table-mapa tfoot td {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      padding: 12px;
+    }
+    .table-mapa tfoot td:first-child {
+      border-radius: 0;
+    }
+    .table-mapa tfoot td:last-child {
+      border-radius: 0;
+    }
+    .iban-cell {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: .82rem;
+      letter-spacing: .3px;
+    }
+
+    /* ─── Impressão ─────────────────────────────────────────────────────── */
+    @media print {
+      body { background: #fff; }
+      .sidebar, .topbar, .report-tabs, .report-controls, .card-header-actions,
+      .no-print { display: none !important; }
+      .main-content { padding: 0; margin: 0; }
+      .recibo-wrapper {
+        border: none;
+        box-shadow: none;
+        padding: 20px 10px;
+        max-width: 100%;
+      }
+      .tab-panel.active { display: block !important; }
+      .card { border: 1px solid #ccc; border-radius: 0; }
+      .table-mapa { font-size: .78rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Relatórios & <span>Documentos</span></h1>
+        <p class="page-subtitle">Recibos individuais · Mapa IRT/INSS consolidado · Mapa bancário para transferência.</p>
+      </div>
+    </div>
+
+    <!-- Abas -->
+    <div class="report-tabs">
+      <div class="report-tab active" data-tab="recibo">🧾 Recibo de Salário</div>
+      <div class="report-tab" data-tab="mapa-irt-inss">🏦 Mapa IRT / INSS</div>
+      <div class="report-tab" data-tab="mapa-banco">💸 Mapa Bancário</div>
+    </div>
+
+    <!-- =================== Aba 1: Recibo de Salário =================== -->
+    <div class="tab-panel active" id="tab-recibo">
+      <div class="report-controls">
+        <label class="form-label">Mês de referência:</label>
+        <select id="recibo-mes" class="form-control"></select>
+        <label class="form-label">Funcionário:</label>
+        <select id="recibo-func" class="form-control" style="min-width:280px"></select>
+        <div class="action-group">
+          <button class="btn btn-secondary no-print" onclick="window.print()">🖨 Imprimir / PDF</button>
+          <button class="btn btn-primary no-print" id="btn-gerar-recibo">📄 Gerar Recibo</button>
+        </div>
+      </div>
+
+      <div id="recibo-output"></div>
+    </div>
+
+    <!-- =================== Aba 2: Mapa IRT / INSS =================== -->
+    <div class="tab-panel" id="tab-mapa-irt-inss">
+      <div class="report-controls">
+        <label class="form-label">Mês de referência:</label>
+        <select id="mapa-mes" class="form-control"></select>
+        <div class="action-group">
+          <button class="btn btn-secondary no-print" onclick="window.print()">🖨 Imprimir / PDF</button>
+          <button class="btn btn-primary no-print" id="btn-gerar-mapa-irt">📊 Gerar Mapa</button>
+        </div>
+      </div>
+      <div id="mapa-irt-output"></div>
+    </div>
+
+    <!-- =================== Aba 3: Mapa Bancário =================== -->
+    <div class="tab-panel" id="tab-mapa-banco">
+      <div class="report-controls">
+        <label class="form-label">Mês de referência:</label>
+        <select id="banco-mes" class="form-control"></select>
+        <div class="action-group">
+          <button class="btn btn-secondary no-print" onclick="window.print()">🖨 Imprimir / PDF</button>
+          <button class="btn btn-success no-print" id="btn-gerar-mapa-banco">💸 Gerar Mapa Bancário</button>
+        </div>
+      </div>
+      <div id="mapa-banco-output"></div>
+    </div>
+
+  </div>
+
+  <script src="../js/storage.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/folha.js"></script>
+  <script src="../js/relatorios.js"></script>
+</body>
+</html>
