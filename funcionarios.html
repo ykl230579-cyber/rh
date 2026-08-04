@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Funcionários — GestãoRH</title>
+  <meta name="description" content="Gerir o quadro de funcionários da empresa: cadastro, edição, filtros e histórico.">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/funcionarios.css">
+</head>
+<body>
+
+  <!-- Nav é injetado pelo nav.js -->
+
+  <div class="main-content">
+
+    <!-- ── Page Header ── -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Quadro de <span>Funcionários</span></h1>
+        <p class="page-subtitle">Gerencie o cadastro completo dos colaboradores da empresa.</p>
+      </div>
+      <button class="btn btn-primary" onclick="Funcionarios.openNew()">
+        ＋ Novo Funcionário
+      </button>
+    </div>
+
+    <!-- ── KPI Stats ── -->
+    <div class="kpi-grid" style="grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); margin-bottom:24px;">
+      <div class="kpi-card" style="--kpi-color: var(--primary);">
+        <span class="kpi-icon">👥</span>
+        <div class="kpi-value" id="stat-total">0</div>
+        <div class="kpi-label">Total</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color: var(--success);">
+        <span class="kpi-icon">✅</span>
+        <div class="kpi-value" id="stat-ativos">0</div>
+        <div class="kpi-label">Ativos</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color: var(--danger);">
+        <span class="kpi-icon">⛔</span>
+        <div class="kpi-value" id="stat-inativos">0</div>
+        <div class="kpi-label">Inativos</div>
+      </div>
+    </div>
+
+    <!-- ── Filters ── -->
+    <div class="filters-bar">
+      <input type="text" id="func-search" class="form-control" placeholder="🔍  Buscar por nome, função, email..." style="max-width:320px;">
+      <select id="filter-dept" class="form-control">
+        <option value="">Todos os Departamentos</option>
+      </select>
+      <select id="filter-status" class="form-control">
+        <option value="">Todos os Status</option>
+        <option value="Ativo">Ativo</option>
+        <option value="Inativo">Inativo</option>
+      </select>
+      <select id="filter-contrato" class="form-control">
+        <option value="">Todos os Contratos</option>
+        <option value="Efectivo">Efectivo</option>
+        <option value="Termo Certo">Termo Certo</option>
+        <option value="Termo Incerto">Termo Incerto</option>
+        <option value="Prestação de Serviços">Prestação de Serviços</option>
+        <option value="Estágio">Estágio</option>
+      </select>
+      <span class="results-count" id="results-count"></span>
+    </div>
+
+    <!-- ── Table ── -->
+    <div class="card" style="padding:0; overflow:hidden;">
+      <div class="table-container" style="border:none; border-radius:var(--r-lg);">
+        <table class="table" id="func-table">
+          <thead>
+            <tr>
+              <th data-sort="id_display">ID</th>
+              <th data-sort="nome">Funcionário</th>
+              <th data-sort="funcao">Função</th>
+              <th data-sort="departamento">Departamento</th>
+              <th data-sort="tipoContrato">Contrato</th>
+              <th data-sort="dataAdmissao">Admissão</th>
+              <th data-sort="salarioBase">Salário Base</th>
+              <th data-sort="estado">Estado</th>
+              <th style="text-align:right;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="func-tbody">
+            <tr><td colspan="9">
+              <div class="empty-state">
+                <div class="empty-state-icon">👥</div>
+                <h3>Nenhum funcionário cadastrado</h3>
+                <p>Clique em "Novo Funcionário" para começar.</p>
+              </div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span class="pagination-info" id="pagination-info"></span>
+        <div class="pagination-btns" id="pagination-btns"></div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+
+
+  <!-- ═══ Modal: Novo / Editar Funcionário ═══ -->
+  <div class="modal" id="func-modal">
+    <div class="modal-box modal-lg">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-title">Novo Funcionário</span>
+        <button class="modal-close" onclick="Funcionarios.closeModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Foto Upload -->
+        <div class="form-group form-full" style="margin-bottom: 28px;">
+          <div class="photo-upload-wrapper">
+            <label class="form-label" style="margin-bottom: 10px;">Foto do Funcionário</label>
+            <div class="photo-upload-container">
+              <div class="photo-preview" id="photo-preview">
+                <span class="photo-placeholder-icon">👤</span>
+              </div>
+              <div class="photo-actions">
+                <label class="btn btn-primary btn-sm photo-upload-btn" for="form-foto-input">
+                  📷  Carregar Foto
+                </label>
+                <button type="button" class="btn btn-ghost btn-sm photo-remove-btn" id="photo-remove-btn" style="display:none;">
+                  🗑️  Remover
+                </button>
+                <p class="photo-hint">Formatos aceites: JPG, PNG. Tamanho máximo: 5MB.</p>
+              </div>
+              <input id="form-foto-input" type="file" accept="image/*" style="display:none;">
+              <input id="form-foto" type="hidden">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid">
+
+          <!-- ID -->
+          <div class="form-group">
+            <label class="form-label" for="form-id_display">ID do Funcionário</label>
+            <input id="form-id_display" type="text" class="form-control" placeholder="FUN-0001" readonly>
+          </div>
+
+          <!-- Nome -->
+          <div class="form-group">
+            <label class="form-label" for="form-nome">Nome Completo *</label>
+            <input id="form-nome" type="text" class="form-control" placeholder="Ex: João Silva">
+          </div>
+
+          <!-- Função -->
+          <div class="form-group">
+            <label class="form-label" for="form-funcao">Função / Cargo *</label>
+            <input id="form-funcao" type="text" class="form-control" placeholder="Ex: Analista de RH">
+          </div>
+
+          <!-- Departamento -->
+          <div class="form-group">
+            <label class="form-label" for="form-departamento">Departamento *</label>
+            <select id="form-departamento" class="form-control">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+
+          <!-- Data Admissão -->
+          <div class="form-group">
+            <label class="form-label" for="form-dataAdmissao">Data de Admissão *</label>
+            <input id="form-dataAdmissao" type="date" class="form-control">
+          </div>
+
+          <!-- Tipo Contrato -->
+          <div class="form-group">
+            <label class="form-label" for="form-tipoContrato">Tipo de Contrato *</label>
+            <select id="form-tipoContrato" class="form-control">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+
+          <!-- NIF -->
+          <div class="form-group">
+            <label class="form-label" for="form-nif">NIF *</label>
+            <input id="form-nif" type="text" class="form-control" placeholder="Ex: 000000000LA000">
+          </div>
+
+          <!-- NISS -->
+          <div class="form-group">
+            <label class="form-label" for="form-niss">NISS *</label>
+            <input id="form-niss" type="text" class="form-control" placeholder="Ex: 00000000">
+          </div>
+
+          <!-- Salário Base -->
+          <div class="form-group">
+            <label class="form-label" for="form-salarioBase">Salário Base (Kz)</label>
+            <input id="form-salarioBase" type="number" min="0" step="0.01" class="form-control" placeholder="Ex: 150000.00">
+          </div>
+
+          <!-- Estado -->
+          <div class="form-group">
+            <label class="form-label" for="form-estado">Estado</label>
+            <select id="form-estado" class="form-control">
+              <option value="Ativo">Ativo</option>
+              <option value="Inativo">Inativo</option>
+            </select>
+          </div>
+
+          <!-- Telefone -->
+          <div class="form-group">
+            <label class="form-label" for="form-telefone">Telefone</label>
+            <input id="form-telefone" type="tel" class="form-control" placeholder="Ex: +244 9xx xxx xxx">
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label class="form-label" for="form-email">Email</label>
+            <input id="form-email" type="email" class="form-control" placeholder="Ex: joao@empresa.ao">
+          </div>
+
+          <!-- Morada (full width) -->
+          <div class="form-group form-full">
+            <label class="form-label" for="form-morada">Morada</label>
+            <input id="form-morada" type="text" class="form-control" placeholder="Ex: Rua dos Coqueiros, 25, Luanda">
+          </div>
+
+          <!-- Dados Bancários -->
+          <div class="form-group">
+            <label class="form-label" for="form-banco">Banco</label>
+            <input id="form-banco" type="text" class="form-control" placeholder="Ex: BAI, BFA, Millennium Atlântico">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="form-numeroConta">Número da Conta</label>
+            <input id="form-numeroConta" type="text" class="form-control" placeholder="Ex: 0000.0000.0000.000">
+          </div>
+          <div class="form-group form-full">
+            <label class="form-label" for="form-iban">IBAN</label>
+            <input id="form-iban" type="text" class="form-control" placeholder="Ex: AO06 0000 0000 0000 0000 0000 0">
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="Funcionarios.closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="Funcionarios.save()">💾  Guardar Funcionário</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/storage.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/funcionarios.js"></script>
+</body>
+</html>

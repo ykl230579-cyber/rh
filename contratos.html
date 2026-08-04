@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contratos — GestãoRH</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/contratos.css">
+</head>
+<body>
+  <div class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Controle de <span>Contratos</span></h1>
+        <p class="page-subtitle">Monitorize vencimentos e status dos contratos de trabalho.</p>
+      </div>
+      <button class="btn btn-primary" onclick="Contratos.openNew()">＋ Novo Contrato</button>
+    </div>
+
+    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));margin-bottom:24px">
+      <div class="kpi-card" style="--kpi-color:var(--primary)">
+        <span class="kpi-icon">📄</span>
+        <div class="kpi-value" id="kpi-total-c">0</div>
+        <div class="kpi-label">Total</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:var(--success)">
+        <span class="kpi-icon">✅</span>
+        <div class="kpi-value" id="kpi-ok">0</div>
+        <div class="kpi-label">OK</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:var(--warning)">
+        <span class="kpi-icon">⚠️</span>
+        <div class="kpi-value" id="kpi-atencao-c">0</div>
+        <div class="kpi-label">Atenção / Urgente</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:var(--danger)">
+        <span class="kpi-icon">🔴</span>
+        <div class="kpi-value" id="kpi-vencidos-c">0</div>
+        <div class="kpi-label">Vencidos</div>
+      </div>
+    </div>
+
+    <div class="filters-bar">
+      <input type="text" id="cont-search" class="form-control" placeholder="🔍  Buscar funcionário ou contrato...">
+      <select id="filter-status-c" class="form-control">
+        <option value="">Todos os Status</option>
+        <option value="OK">OK</option>
+        <option value="Monitorar">Monitorar</option>
+        <option value="Atenção">Atenção</option>
+        <option value="Urgente">Urgente</option>
+        <option value="Vencido">Vencido</option>
+      </select>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="table-container" style="border:none">
+        <table class="table">
+          <thead>
+            <tr>
+              <th data-sort="_funcNome">Funcionário</th>
+              <th data-sort="tipoContrato">Tipo</th>
+              <th data-sort="dataAdmissao">Admissão</th>
+              <th data-sort="dataTermino">Término</th>
+              <th data-sort="diasRestantes">Dias Restantes</th>
+              <th>Status</th>
+              <th>Observações</th>
+              <th style="text-align:right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="cont-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="cont-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-c-title">Novo Contrato</span>
+        <button class="modal-close" onclick="Contratos.closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Funcionário *</label>
+          <select id="form-c-func" class="form-control"></select>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Tipo de Contrato *</label>
+            <select id="form-c-tipo" class="form-control">
+              <option value="">Selecione...</option>
+              <option>Efectivo</option>
+              <option>Termo Certo</option>
+              <option>Termo Incerto</option>
+              <option>Prestação de Serviços</option>
+              <option>Estágio</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Data de Admissão *</label>
+            <input type="date" id="form-c-admissao" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Data de Término</label>
+            <input type="date" id="form-c-termino" class="form-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Observações</label>
+          <input type="text" id="form-c-obs" class="form-control" placeholder="Notas adicionais...">
+        </div>
+
+        <!-- Anexar PDF -->
+        <div class="form-group" style="margin-top: 8px;">
+          <label class="form-label" style="margin-bottom: 10px;">Documento do Contrato (PDF)</label>
+          <div class="pdf-upload-wrapper" id="pdf-upload-wrapper">
+            <div class="pdf-upload-area" id="pdf-dropzone">
+              <div class="pdf-icon">📄</div>
+              <div class="pdf-upload-text">
+                <strong id="pdf-filename">Nenhum ficheiro selecionado</strong>
+                <p id="pdf-filesize">Arraste aqui ou clique para selecionar</p>
+              </div>
+              <div class="pdf-upload-actions">
+                <label class="btn btn-primary btn-sm pdf-upload-btn" for="form-c-pdf-input">
+                  📎  Anexar PDF
+                </label>
+                <button type="button" class="btn btn-ghost btn-sm pdf-view-btn" id="pdf-view-btn" style="display:none;" onclick="Contratos.viewPDF()">
+                  👁️  Ver
+                </button>
+                <button type="button" class="btn btn-ghost btn-sm pdf-download-btn" id="pdf-download-btn" style="display:none;" onclick="Contratos.downloadPDF()">
+                  ⬇️  Baixar
+                </button>
+                <button type="button" class="btn btn-ghost btn-sm pdf-remove-btn" id="pdf-remove-btn" style="display:none;" onclick="Contratos.removePDF()">
+                  🗑️  Remover
+                </button>
+              </div>
+            </div>
+            <input id="form-c-pdf-input" type="file" accept="application/pdf" style="display:none;">
+            <input id="form-c-pdf" type="hidden">
+            <input id="form-c-pdf-name" type="hidden">
+          </div>
+          <p class="pdf-hint">Formato aceite: PDF. Tamanho máximo: 15MB.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="Contratos.closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="Contratos.save()">💾 Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/storage.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/contratos.js"></script>
+</body>
+</html>
