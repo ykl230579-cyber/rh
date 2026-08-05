@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentos — GestãoRH</title>
+  <meta name="description" content="Controlo da documentação dos funcionários — Contrato, INSS, Exame Médico, BI, NIF e Certificados.">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/documentos.css">
+</head>
+<body>
+  <div class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Controlo de <span>Documentação</span></h1>
+        <p class="page-subtitle">Acompanhe a conformidade dos documentos de cada colaborador.</p>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); margin-bottom: 24px;">
+      <div class="kpi-card" style="--kpi-color: var(--primary)">
+        <span class="kpi-icon">🗂</span>
+        <div class="kpi-value" id="kpi-doc-total">0</div>
+        <div class="kpi-label">Total Registos</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color: var(--success)">
+        <span class="kpi-icon">✅</span>
+        <div class="kpi-value" id="kpi-doc-completos">0</div>
+        <div class="kpi-label">100% Completos</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color: var(--warning)">
+        <span class="kpi-icon">⏳</span>
+        <div class="kpi-value" id="kpi-doc-pendentes">0</div>
+        <div class="kpi-label">Com Pendências</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color: var(--danger)">
+        <span class="kpi-icon">⚠️</span>
+        <div class="kpi-value" id="kpi-doc-vencidos">0</div>
+        <div class="kpi-label">Com Vencidos</div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-bar" style="margin-bottom: 20px;">
+      <input type="text" id="docs-search" class="form-control" placeholder="🔍  Pesquisar funcionário..." style="max-width: 320px;">
+      <select id="filter-doc-status" class="form-control" style="max-width: 200px;">
+        <option value="">Todos os Status</option>
+        <option value="Completo">Com Pendência Completo</option>
+        <option value="Pendente">Possui Pendente</option>
+        <option value="Vencido">Possui Vencido</option>
+      </select>
+    </div>
+
+    <!-- Grid de Cards de Documentação -->
+    <div class="doc-grid" id="docs-grid"></div>
+  </div>
+
+  <!-- Modal de Edição de Documentos -->
+  <div class="modal" id="doc-modal">
+    <div class="modal-box" style="max-width: 600px;">
+      <div class="modal-header">
+        <div>
+          <span class="modal-title">Editar Documentação</span>
+          <p style="font-size: 0.85rem; color: var(--text-2); margin-top: 4px;" id="modal-doc-nome">—</p>
+        </div>
+        <button class="modal-close" onclick="Documentos.closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="doc-modal-body" style="max-height: 65vh; overflow-y: auto;">
+        <!-- Injetado via JS dinamicamente -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="Documentos.closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="Documentos.save()">💾 Guardar Alterações</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/storage.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/documentos.js"></script>
+</body>
+</html>

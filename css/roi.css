@@ -1,0 +1,548 @@
+/* ═══════════════════════════════════════════════════════════
+   ROI & Métricas RH — CSS dedicado
+   Dark Theme + Glassmorphism + Premium UI
+═══════════════════════════════════════════════════════════ */
+
+/* ─── Header Actions ─── */
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* ═══════════════════════════════════════════════════
+   KPI Summary Grid (topo)
+═══════════════════════════════════════════════════ */
+.roi-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.roi-kpi-card {
+  position: relative;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+  overflow: hidden;
+  transition: var(--t);
+}
+
+.roi-kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 90px; height: 90px;
+  background: radial-gradient(circle at top right, var(--glow, rgba(99,102,241,.22)), transparent 70%);
+  border-radius: 0 0 0 100%;
+  pointer-events: none;
+}
+
+.roi-kpi-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.roi-kpi-label {
+  font-size: .75rem;
+  color: var(--text-2);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.roi-kpi-value {
+  font-size: 1.9rem;
+  font-weight: 800;
+  margin-top: 6px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.roi-kpi-sub {
+  font-size: .72rem;
+  color: var(--text-3);
+  margin-top: 4px;
+}
+
+.roi-kpi-card--turnover .roi-kpi-value { color: var(--danger); }
+.roi-kpi-card--absentismo .roi-kpi-value { color: var(--warning); }
+.roi-kpi-card--formacao .roi-kpi-value { color: var(--info); }
+.roi-kpi-card--geral .roi-kpi-value { color: var(--primary); }
+
+/* ═══════════════════════════════════════════════════
+   Main Cards Grid
+═══════════════════════════════════════════════════ */
+.roi-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.roi-main-grid--21 {
+  grid-template-columns: 1.4fr 1fr;
+}
+
+@media (max-width: 1100px) {
+  .roi-main-grid, .roi-main-grid--21 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.roi-main-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: var(--t-slow);
+  position: relative;
+}
+
+.roi-main-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--violet));
+}
+
+.roi-main-card--turnover::before  { background: linear-gradient(90deg, #ef4444, #f97316, #eab308); }
+.roi-main-card--absentismo::before { background: linear-gradient(90deg, #f59e0b, #eab308, #84cc16); }
+.roi-main-card--formacao::before  { background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981); }
+.roi-main-card--radar::before,
+.roi-main-card--list::before     { background: linear-gradient(90deg, #8b5cf6, #6366f1, #3b82f6); }
+
+.roi-main-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-md);
+}
+
+/* ─── Main Card Header ─── */
+.roi-main-header {
+  padding: 22px 24px 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+}
+
+.roi-main-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.roi-icon-circle {
+  width: 52px; height: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 20px rgba(0,0,0,.3);
+}
+
+.roi-icon-circle--danger  { background: linear-gradient(135deg, rgba(239,68,68,.22), rgba(249,115,22,.12)); border-color: rgba(239,68,68,.3); }
+.roi-icon-circle--warning { background: linear-gradient(135deg, rgba(245,158,11,.22), rgba(234,179,8,.12)); border-color: rgba(245,158,11,.3); }
+.roi-icon-circle--info    { background: linear-gradient(135deg, rgba(59,130,246,.22), rgba(6,182,212,.12)); border-color: rgba(59,130,246,.3); }
+.roi-icon-circle--violet  { background: linear-gradient(135deg, rgba(139,92,246,.22), rgba(99,102,241,.12)); border-color: rgba(139,92,246,.3); }
+.roi-icon-circle--success { background: linear-gradient(135deg, rgba(16,185,129,.22), rgba(6,182,212,.12)); border-color: rgba(16,185,129,.3); }
+
+.roi-main-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.roi-main-formula {
+  font-size: .72rem;
+  color: var(--text-3);
+  margin-top: 4px;
+  font-family: Consolas, 'JetBrains Mono', monospace;
+  background: var(--bg-3);
+  padding: 3px 10px;
+  border-radius: 6px;
+  display: inline-block;
+  border: 1px solid var(--border);
+}
+
+.roi-main-value {
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-align: right;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.roi-main-card--turnover  .roi-main-value { color: var(--danger); }
+.roi-main-card--absentismo .roi-main-value { color: var(--warning); }
+.roi-main-card--formacao  .roi-main-value { color: var(--info); }
+.roi-main-card--radar     .roi-main-value { color: var(--violet); }
+
+/* ─── Main Card Body ─── */
+.roi-main-body {
+  padding: 22px 24px 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Detail Grid (Turnover) */
+.roi-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+@media (max-width: 560px) {
+  .roi-detail-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.roi-detail {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.roi-detail-label {
+  font-size: .68rem;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  line-height: 1.2;
+}
+
+.roi-detail-val {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 4px;
+}
+
+.roi-detail-val--danger  { color: var(--danger); }
+.roi-detail-val--warning { color: var(--warning); }
+.roi-detail-val--success { color: var(--success); }
+.roi-detail-val--info    { color: var(--info); }
+
+/* ─── Big Progress (Turnover) ─── */
+.roi-big-progress {
+  width: 100%;
+}
+
+.roi-big-progress-bar {
+  width: 0%;
+  height: 14px;
+  background: linear-gradient(90deg, #ef4444, #f97316, #f59e0b, #84cc16, #10b981);
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(239,68,68,.25);
+  transition: width .8s cubic-bezier(.4,0,.2,1);
+  position: relative;
+}
+.roi-big-progress-bar::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 20px;
+  background: inherit;
+  filter: blur(4px);
+  opacity: .45;
+  z-index: -1;
+}
+
+.roi-big-progress-tracks {
+  display: flex;
+  justify-content: space-between;
+  font-size: .65rem;
+  color: var(--text-3);
+  margin-top: 6px;
+  font-family: Consolas, monospace;
+}
+
+/* ─── Insight Box ─── */
+.roi-insight-box {
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  font-size: .82rem;
+  line-height: 1.55;
+  border-left: 4px solid;
+  background: var(--bg-3);
+  border-color: var(--primary);
+}
+
+.roi-insight-box strong { color: var(--text); }
+
+.roi-insight-box--danger  { border-color: var(--danger);  background: var(--danger-bg);  color: #fecaca; }
+.roi-insight-box--warning { border-color: var(--warning); background: var(--warning-bg); color: #fde68a; }
+.roi-insight-box--info    { border-color: var(--info);    background: var(--info-bg);    color: #bfdbfe; }
+.roi-insight-box--success { border-color: var(--success); background: var(--success-bg); color: #bbf7d0; }
+
+/* ═══════════════════════════════════════════════════
+   Forms dentro dos cards
+═══════════════════════════════════════════════════ */
+.roi-form-card {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px;
+}
+
+.roi-form-card--compact { padding: 14px; }
+
+.roi-form-title {
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.roi-form-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 720px) { .roi-form-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 420px) { .roi-form-row { grid-template-columns: 1fr; } }
+
+.roi-form-field { display: flex; flex-direction: column; gap: 5px; }
+
+.roi-form-field--submit {
+  justify-content: flex-end;
+  grid-column: 1 / -1;
+}
+
+.roi-form-label {
+  font-size: .68rem;
+  font-weight: 600;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.form-control-md {
+  padding: 8px 12px !important;
+  font-size: .82rem !important;
+  border-radius: var(--r-sm) !important;
+}
+
+.btn-block { width: 100%; justify-content: center; }
+
+.btn-warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #1c1917;
+  border: none;
+  font-weight: 600;
+}
+.btn-warning:hover { filter: brightness(1.08); box-shadow: 0 6px 20px rgba(245,158,11,.3); }
+
+.btn-info {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+  font-weight: 600;
+}
+.btn-info:hover { filter: brightness(1.08); box-shadow: 0 6px 20px rgba(59,130,246,.3); }
+
+/* ─── Mini Stat Grid ─── */
+.roi-mini-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+@media (max-width: 520px) { .roi-mini-stat-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.roi-mini-stat {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 10px 8px;
+  text-align: center;
+  transition: var(--t);
+}
+
+.roi-mini-stat:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-4);
+}
+
+.m-stat-v {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+.m-stat-l {
+  display: block;
+  font-size: .65rem;
+  color: var(--text-2);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+/* ─── Charts Mini ─── */
+.roi-chart-mini {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px;
+}
+
+.roi-chart-mini-title {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.roi-chart-mini canvas { width: 100% !important; height: 140px !important; display: block; }
+
+.roi-chart-wrap {
+  width: 100%;
+  height: 280px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 16px;
+}
+
+.roi-chart-wrap canvas { width: 100% !important; height: 100% !important; display: block; }
+
+/* ═══════════════════════════════════════════════════
+   Histórico Tables
+═══════════════════════════════════════════════════ */
+.roi-main-card--list .roi-main-body--table { padding: 0; }
+
+.roi-filter-wrap {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.roi-filter-wrap .form-control-sm { min-width: 140px; }
+
+.roi-table-wrap {
+  width: 100%;
+  max-height: 480px;
+  overflow: auto;
+}
+
+.roi-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: .82rem;
+}
+
+.roi-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.roi-table thead th {
+  background: var(--bg-3);
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  font-size: .68rem;
+  font-weight: 700;
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.roi-table tbody tr {
+  transition: background .15s ease;
+}
+.roi-table tbody tr:hover { background: var(--bg-3); }
+
+.roi-table tbody td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.roi-table-empty {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-3);
+  font-size: .85rem;
+}
+
+.roi-table-empty-icon { font-size: 2.2rem; margin-bottom: 10px; display: block; }
+
+/* Row Action */
+.roi-row-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.roi-btn-del {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: var(--t);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .8rem;
+  padding: 0;
+}
+
+.roi-btn-del:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: rgba(239,68,68,.35);
+}
+
+/* ═══════════════════════════════════════════════════
+   Utility / Badges extras
+═══════════════════════════════════════════════════ */
+.badge-rh {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: .7rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.badge-rh--falta   { background: var(--danger-bg);   color: #fca5a5; border: 1px solid rgba(239,68,68,.25); }
+.badge-rh--atraso  { background: var(--warning-bg);  color: #fcd34d; border: 1px solid rgba(245,158,11,.25); }
+.badge-rh--abono   { background: var(--info-bg);     color: #93c5fd; border: 1px solid rgba(59,130,246,.25); }
+
+.badge-rh--custo   { background: rgba(6,182,212,.14); color: #67e8f9; border: 1px solid rgba(6,182,212,.25); }
+.badge-rh--horas   { background: rgba(139,92,246,.14); color: #c4b5fd; border: 1px solid rgba(139,92,246,.25); }
+
+.text-2 { color: var(--text-2) !important; }
+.text-3 { color: var(--text-3) !important; }
+.fw-600 { font-weight: 600 !important; }

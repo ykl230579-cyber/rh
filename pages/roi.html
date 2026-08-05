@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ROI & Métricas — GestãoRH</title>
+  <meta name="description" content="Painel dedicado de ROI de Recursos Humanos: Turnover, Absentismo e ROI de Formação.">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/roi.css">
+</head>
+<body>
+  <div class="main-content">
+
+    <!-- ── Page Header ── -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title"><span>ROI</span> & Métricas de RH</h1>
+        <p class="page-subtitle">Painel dedicado aos indicadores estratégicos de Retorno sobre Investimento em Capital Humano.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="ROI.init()">🔄 Atualizar</button>
+        <button class="btn btn-primary" onclick="ROI.exportarCSV()">📥 Exportar CSV</button>
+      </div>
+    </div>
+
+    <!-- ── KPI Summary Grid ── -->
+    <div class="roi-kpi-grid" id="roi-kpi-grid"></div>
+
+    <!-- ═══ Row 1: Cards Principais c/ Formulários ═══ -->
+    <div class="roi-main-grid">
+
+      <!-- Card 1: Turnover -->
+      <div class="roi-main-card roi-main-card--turnover" id="card-turnover">
+        <div class="roi-main-header">
+          <div class="roi-main-title-row">
+            <div class="roi-icon-circle roi-icon-circle--danger"><span>🔄</span></div>
+            <div>
+              <h2 class="roi-main-title">Turnover (Rotação de Colaboradores)</h2>
+              <div class="roi-main-formula">(Saídas ÷ Nº Médio de Funcionários) × 100</div>
+            </div>
+          </div>
+          <div class="roi-main-value" id="main-turnover-value">0,0%</div>
+        </div>
+        <div class="roi-main-body">
+          <div class="roi-detail-grid">
+            <div class="roi-detail">
+              <div class="roi-detail-label">Saídas (Funcionários Inativos)</div>
+              <div class="roi-detail-val roi-detail-val--danger" id="main-turnover-saidas">0</div>
+            </div>
+            <div class="roi-detail">
+              <div class="roi-detail-label">Nº Médio de Funcionários</div>
+              <div class="roi-detail-val" id="main-turnover-medio">0</div>
+            </div>
+            <div class="roi-detail">
+              <div class="roi-detail-label">Funcionários Ativos</div>
+              <div class="roi-detail-val roi-detail-val--success" id="main-turnover-ativos">0</div>
+            </div>
+            <div class="roi-detail">
+              <div class="roi-detail-label">Classificação</div>
+              <div class="roi-detail-val" id="main-turnover-class">—</div>
+            </div>
+          </div>
+          <div class="roi-big-progress">
+            <div class="roi-big-progress-bar" id="main-turnover-bar"></div>
+            <div class="roi-big-progress-tracks">
+              <span>0%</span><span>5%</span><span>10%</span><span>15%</span><span>20%+</span>
+            </div>
+          </div>
+          <div class="roi-insight-box roi-insight-box--danger" id="main-turnover-insight">
+            <strong>💡 Insight:</strong> Comece por registar funcionários para visualizar a taxa de rotatividade.
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Absentismo -->
+      <div class="roi-main-card roi-main-card--absentismo" id="card-absentismo">
+        <div class="roi-main-header">
+          <div class="roi-main-title-row">
+            <div class="roi-icon-circle roi-icon-circle--warning"><span>📉</span></div>
+            <div>
+              <h2 class="roi-main-title">Absentismo & Assiduidade</h2>
+              <div class="roi-main-formula">Faltas + Atrasos não justificados</div>
+            </div>
+          </div>
+          <div class="roi-main-value" id="main-absentismo-value">0,0%</div>
+        </div>
+        <div class="roi-main-body">
+          <form class="roi-form-card" onsubmit="event.preventDefault(); ROI.addAssiduidade();">
+            <div class="roi-form-title">➕ Registar ocorrência</div>
+            <div class="roi-form-row">
+              <div class="roi-form-field">
+                <label class="roi-form-label">Funcionário</label>
+                <select class="form-control form-control-md" id="assiduidade-func"></select>
+              </div>
+              <div class="roi-form-field">
+                <label class="roi-form-label">Tipo</label>
+                <select class="form-control form-control-md" id="assiduidade-tipo">
+                  <option value="falta">Falta</option>
+                  <option value="atraso">Atraso</option>
+                  <option value="abono">Falta abonada</option>
+                </select>
+              </div>
+              <div class="roi-form-field">
+                <label class="roi-form-label">Data</label>
+                <input type="date" class="form-control form-control-md" id="assiduidade-data">
+              </div>
+              <div class="roi-form-field">
+                <label class="roi-form-label">Motivo (opcional)</label>
+                <input type="text" class="form-control form-control-md" id="assiduidade-motivo" placeholder="Ex: Consulta médica">
+              </div>
+              <div class="roi-form-field roi-form-field--submit">
+                <button type="submit" class="btn btn-warning btn-block">🗓️ Registar Ocorrência</button>
+              </div>
+            </div>
+          </form>
+          <div class="roi-mini-stat-grid">
+            <div class="roi-mini-stat"><span class="m-stat-v" id="main-faltas">0</span><span class="m-stat-l">Faltas</span></div>
+            <div class="roi-mini-stat"><span class="m-stat-v" id="main-atrasos">0</span><span class="m-stat-l">Atrasos</span></div>
+            <div class="roi-mini-stat"><span class="m-stat-v" id="main-abonos">0</span><span class="m-stat-l">Abonadas</span></div>
+            <div class="roi-mini-stat"><span class="m-stat-v" id="main-dias-uteis">22</span><span class="m-stat-l">Dias / mês</span></div>
+          </div>
+          <div class="roi-chart-mini">
+            <div class="roi-chart-mini-title">📊 Distribuição do Mês</div>
+            <canvas id="chart-absentismo"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══ Row 2: ROI de Formação + Gráfico ═══ -->
+    <div class="roi-main-grid roi-main-grid--21">
+
+      <!-- Card 3: ROI Formação -->
+      <div class="roi-main-card roi-main-card--formacao" id="card-formacao">
+        <div class="roi-main-header">
+          <div class="roi-main-title-row">
+            <div class="roi-icon-circle roi-icon-circle--info"><span>🎓</span></div>
+            <div>
+              <h2 class="roi-main-title">ROI de Formação</h2>
+              <div class="roi-main-formula">Custo Total da Formação investido</div>
+            </div>
+          </div>
+          <div class="roi-main-value" id="main-formacao-value">0 Kz</div>
+        </div>
+        <div class="roi-main-body">
+          <form class="roi-form-card roi-form-card--compact" onsubmit="event.preventDefault(); ROI.addFormacao();">
+            <div class="roi-form-title">➕ Registar nova formação</div>
+            <div class="roi-form-row">
+              <div class="roi-form-field" style="grid-column: span 2;">
+                <label class="roi-form-label">Nome da formação</label>
+                <input type="text" class="form-control form-control-md" id="formacao-nome" placeholder="Ex: Gestão de Conflitos em Equipa">
+              </div>
+              <div class="roi-form-field">
+                <label class="roi-form-label">Custo (Kz)</label>
+                <input type="number" class="form-control form-control-md" id="formacao-custo" min="0" step="0.01" placeholder="Ex: 50000">
+              </div>
+              <div class="roi-form-field">
+                <label class="roi-form-label">Duração (horas)</label>
+                <input type="number" class="form-control form-control-md" id="formacao-horas" min="0" placeholder="Ex: 8">
+              </div>
+              <div class="roi-form-field" style="grid-column: span 2;">
+                <label class="roi-form-label">Funcionário</label>
+                <select class="form-control form-control-md" id="formacao-func"></select>
+              </div>
+              <div class="roi-form-field roi-form-field--submit">
+                <button type="submit" class="btn btn-info btn-block">🎓 Registar Formação</button>
+              </div>
+            </div>
+          </form>
+          <div class="roi-mini-stat-grid">
+            <div class="roi-mini-stat"><span class="m-stat-v" id="main-formacoes">0</span><span class="m-stat-l">Formações</span></div>
+            <div class="roi-mini-stat"><span class="m-stat-v" id="main-formados">0</span><span class="m-stat-l">Colaboradores</span></div>
+            <div class="roi-mini-stat"><span class="m-stat-v" id="main-custo-medio">0 Kz</span><span class="m-stat-l">Custo Médio</span></div>
+            <div class="roi-mini-stat"><span class="m-stat-v" id="main-horas-total">0h</span><span class="m-stat-l">Horas Total</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: Evolução / Radar -->
+      <div class="roi-main-card roi-main-card--radar">
+        <div class="roi-main-header">
+          <div class="roi-main-title-row">
+            <div class="roi-icon-circle roi-icon-circle--violet"><span>📈</span></div>
+            <div>
+              <h2 class="roi-main-title">Evolução de Investimento</h2>
+              <div class="roi-main-formula">Gasto mensal em formações (últimos 6 meses)</div>
+            </div>
+          </div>
+        </div>
+        <div class="roi-main-body">
+          <div class="roi-chart-wrap">
+            <canvas id="chart-formacao-evolucao"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══ Row 3: Históricos Completos ═══ -->
+    <div class="roi-main-grid">
+
+      <!-- Histórico Assiduidade -->
+      <div class="roi-main-card roi-main-card--list">
+        <div class="roi-main-header">
+          <div class="roi-main-title-row">
+            <h2 class="roi-main-title">📋 Histórico de Assiduidade</h2>
+          </div>
+          <div class="roi-filter-wrap">
+            <input type="text" class="form-control form-control-sm" id="search-assiduidade" placeholder="🔍 Pesquisar..." oninput="ROI.renderListas()">
+            <select class="form-control form-control-sm" id="filter-assiduidade-tipo" onchange="ROI.renderListas()">
+              <option value="">Todos os tipos</option>
+              <option value="falta">Faltas</option>
+              <option value="atraso">Atrasos</option>
+              <option value="abono">Abonadas</option>
+            </select>
+          </div>
+        </div>
+        <div class="roi-main-body roi-main-body--table">
+          <div class="roi-table-wrap">
+            <table class="roi-table" id="table-assiduidade">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Funcionário</th>
+                  <th>Departamento</th>
+                  <th>Tipo</th>
+                  <th>Motivo</th>
+                  <th style="width:60px;"></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Histórico Formações -->
+      <div class="roi-main-card roi-main-card--list">
+        <div class="roi-main-header">
+          <div class="roi-main-title-row">
+            <h2 class="roi-main-title">🎓 Histórico de Formações</h2>
+          </div>
+          <div class="roi-filter-wrap">
+            <input type="text" class="form-control form-control-sm" id="search-formacao" placeholder="🔍 Pesquisar..." oninput="ROI.renderListas()">
+          </div>
+        </div>
+        <div class="roi-main-body roi-main-body--table">
+          <div class="roi-table-wrap">
+            <table class="roi-table" id="table-formacoes">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Formação</th>
+                  <th>Funcionário</th>
+                  <th>Horas</th>
+                  <th>Custo</th>
+                  <th style="width:60px;"></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /main-content -->
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/storage.js"></script>
+  <script src="../js/nav.js"></script>
+  <script src="../js/roi.js"></script>
+</body>
+</html>
